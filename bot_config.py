@@ -1,0 +1,64 @@
+from box import Box
+
+greeting_commands = ["hello", "hi", "hey"]
+exit_bot_commands = ["exit", "close", "q"]
+
+bot_config = Box(
+    {
+        "greeting": {
+            "command": greeting_commands,
+            "answer": "Hello! How can I help you?",
+        },
+        "exit": {"command": exit_bot_commands, "answer": "Goodbye! Have a great day!"},
+        "unknown_command": {
+            "answer": "Invalid command.",
+        },
+        "add": {
+            "command": "add",
+            "answer": "Contact added.",
+        },
+        "change": {
+            "command": "change",
+            "answer": {
+                "success": "Contact updated.",
+                "fail": "Contact not found.",
+            },
+        },
+        "phone": {
+            "command": "phone",
+            "answer": {
+                "success": lambda contact: f"{contact}",
+                "fail": lambda name: f"{name} not found in contacts.",
+            },
+        },
+        "all": {
+            "command": "all",
+        },
+        "delete": {
+            "command": "delete",
+            "answer": {
+                "success": lambda name: f"Contact {name} deleted successfully.",
+                "fail": lambda name: f"Contact {name} not found.",
+            },
+        },
+        "remove_phone": {
+            "command": "remove-phone",
+            "answer": {
+                "success": lambda name, phone: f"Phone {phone} removed from {name}.",
+                "fail": lambda name, phone: f"Phone {phone} not found for {name}.",
+            },
+        },
+        "add_birthday": {
+            "command": "add-birthday",
+            "answer": "Birthday added.",
+        },
+        "show_birthday": {
+            "command": "show-birthday",
+            "answer": "Birthday shown.",
+        },
+        "birthdays": {
+            "command": "birthdays",
+            "answer": "Upcoming birthdays shown.",
+        },
+    }
+)
