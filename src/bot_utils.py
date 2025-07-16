@@ -1,11 +1,23 @@
+import re
 from box import Box
 from colorama import Fore, init
 import pickle
+from prompt_toolkit import prompt
 
 from address_book import AddressBook, Record
+from bot_autocomplete import DynamicCompleter
 from bot_config import bot_config
+from constants import patterns
 
 init(autoreset=True)
+
+
+def validator(pattern, string_to_validate):
+    match = re.search(re.compile(pattern), string_to_validate)
+    if match:
+        return True
+    else:
+        return False
 
 
 def input_error(func):
@@ -34,45 +46,75 @@ def check_args_length(
 
 
 @input_error
-def add_contact(args, book):
-    check_args_length(args)
+def add_contact(book):
+    name = get_user_input("Enter contact name: ")
+    phone = get_user_input("Enter contact phone: ")
 
-    name, phone = args[0], args[1]
     record = book.find(name)
 
     if record is None:
-        record = Record(name)
-        book.add_record(record)
+        if validator(patterns.phone, phone):
+            record = Record(name)
+            record.add_phone(phone)
+            book.add_record(record)
+            print(f"{Fore.GREEN} Додано новий контакт {name}: {phone}")
+        else:
+            print("Error: Некоректний номер, контакт не створено.")
+    else:
+        if validator(patterns.phone, phone):
+            if phone in [p.value for p in record.phones]:
+                print(f"{Fore.YELLOW} Номер {phone} вже існує для {name}")
+            else:
+                record.add_phone(phone)
+                print(f"{Fore.GREEN} Додано номер до {name}: {phone}")
+        else:
+            print("Error: Некоректний номер.")
 
-    if phone:
-        record.add_phone(phone)
 
-    print(f"{Fore.GREEN} {bot_config.add.answer} {name}: {phone}")
-
-
-@input_error
-def change_contact(args, book):
-    check_args_length(args, 3)
-
-    name, old_phone, new_phone = args[0], args[1], args[2]
+def edit_contact_field(book, name, field_type):
     contact = book.find(name)
 
     if not contact:
         print(f"{Fore.RED} {bot_config.change.answer.fail}")
         return
 
-    try:
-        contact.edit_phone(old_phone, new_phone)
-        print(f"{Fore.GREEN} {bot_config.change.answer.success}")
-    except ValueError as e:
-        print(f"{Fore.RED} Failed to change phone: {e}")
+    if field_type == "name":
+        new_name = get_user_input("Enter new contact name: ")
+        try:
+            contact.edit_name(name, new_name, book)
+            print(f"{Fore.GREEN} {bot_config.change.answer.success}")
+        except ValueError as e:
+            print(f"{Fore.RED} Failed to change name: {e}")
+
+    elif field_type == "phone":
+        old_phone = get_user_input("Enter contact phone to change: ")
+        new_phone = get_user_input("Enter new contact phone: ")
+        try:
+            contact.edit_phone(old_phone, new_phone)
+            print(f"{Fore.GREEN} {bot_config.change.answer.success}")
+        except ValueError as e:
+            print(f"{Fore.RED} Failed to change phone: {e}")
 
 
 @input_error
-def show_phone(args, book):
-    check_args_length(args, 1)
+def change_contact(book):
+    name = get_user_input("Enter contact name to change: ")
 
-    name = args[0]
+    print("Choose the option you want to change:\n1 - name\n2 - phone")
+    cmd = get_user_input("Your choice: ")
+
+    if cmd == "1":
+        edit_contact_field(book, name, "name")
+    elif cmd == "2":
+        edit_contact_field(book, name, "phone")
+    else:
+        print(f"{Fore.RED} {bot_config.unknown_command.answer}")
+
+
+@input_error
+def show_phone(book):
+    name = get_user_input("Enter contact name to show phone: ")
+
     contact = book.find(name)
 
     if not contact:
@@ -92,20 +134,19 @@ def show_all(book):
         print(f"{Fore.GREEN} {record}")
 
 
-def delete_contact(args, book):
-    check_args_length(args, 1)
+def delete_contact(book):
+    name = get_user_input("Enter contact name to delete: ")
 
-    name = args[0]
     if book.delete(name):
         print(f"{Fore.GREEN} Contact {name} deleted successfully.")
     else:
         print(f"{Fore.RED} Contact {name} not found.")
 
 
-def remove_phone(args, book):
-    check_args_length(args, 2)
+def remove_phone(book):
+    name = get_user_input("Enter contact name: ")
+    phone = get_user_input("Enter contact phone to remove: ")
 
-    name, phone = args[0], args[1]
     contact = book.find(name)
 
     if not contact:
@@ -118,10 +159,10 @@ def remove_phone(args, book):
         print(f"{Fore.RED} Phone {phone} not found for {name}.")
 
 
-def add_birthday(args, book):
-    check_args_length(args, 2)
+def add_birthday(book):
+    name = get_user_input("Enter contact name: ")
+    birthday = get_user_input("Enter contact birthday: ")
 
-    name, birthday = args[0], args[1]
     contact = book.find(name)
 
     if not contact:
@@ -135,10 +176,9 @@ def add_birthday(args, book):
         print(f"{Fore.RED} Failed to add birthday: {e}")
 
 
-def show_birthday(args, book):
-    check_args_length(args, 1)
+def show_birthday(book):
+    name = get_user_input("Enter contact name: ")
 
-    name = args[0]
     contact = book.find(name)
 
     if not contact:
@@ -163,10 +203,10 @@ def show_upcoming_birthdays(book):
         print(f"{contact['name']}: {contact['congratulation_date']}")
 
 
-def parse_input(user_input):
-    cmd, *args = user_input.split()
-    cmd = cmd.strip().lower()
-    return cmd, *args
+def search(book):
+    name = get_user_input("Enter contact name to change: ")
+    contact = book.find(name)
+    print(contact)
 
 
 def save_data(book, filename="addressbook.pkl"):
@@ -182,13 +222,57 @@ def load_data(filename="addressbook.pkl"):
         return AddressBook()
 
 
+def save_commands(command, filename="commands.pkl"):
+    try:
+        with open(filename, "rb") as f:
+            commands = pickle.load(f)
+    except FileNotFoundError:
+        commands = []
+
+    if command not in commands:
+        commands.append(command)
+
+    with open(filename, "wb") as f:
+        pickle.dump(commands, f)
+
+
+def load_commands(filename="commands.pkl"):
+    try:
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return extract_commands(bot_config)
+
+
+def extract_commands(config):
+    commands = []
+    for item in config.values():
+        command = item.get("command")
+        if isinstance(command, list):
+            commands.extend(command)
+        elif isinstance(command, str):
+            commands.append(command)
+    return commands
+
+
+predefined_commands = extract_commands(bot_config)
+history_commands = load_commands()
+
+all_commands = list(set(predefined_commands + history_commands))
+
+
+def get_user_input(message):
+    cmd = prompt(message, completer=DynamicCompleter(all_commands)).strip()
+    save_commands(cmd)
+    return cmd
+
+
 utils = Box(
     {
         "add": add_contact,
         "change": change_contact,
         "phone": show_phone,
         "all": show_all,
-        "parse_input": parse_input,
         "delete": delete_contact,
         "remove_phone": remove_phone,
         "add_birthday": add_birthday,
@@ -196,5 +280,9 @@ utils = Box(
         "show_upcoming_birthdays": show_upcoming_birthdays,
         "load_data": load_data,
         "save_data": save_data,
+        "search": search,
+        "save_commands": save_commands,
+        "load_commands": load_commands,
+        "get_user_input": get_user_input,
     }
 )

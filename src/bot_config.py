@@ -1,4 +1,7 @@
 from box import Box
+from colorama import Fore, init
+
+init(autoreset=True)
 
 greeting_commands = ["hello", "hi", "hey"]
 exit_bot_commands = ["exit", "close", "q"]
@@ -59,6 +62,9 @@ bot_config = Box(
         "birthdays": {
             "command": "birthdays",
             "answer": "Upcoming birthdays shown.",
+        },
+        "search": {
+            "command": "search",
         },
     }
 )
