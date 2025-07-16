@@ -1,14 +1,16 @@
+from bot_config import bot_config
 from bot_utils import utils
 
+
 command_handlers = {
-    "add": utils.add,
-    "change": utils.change,
-    "phone": utils.phone,
-    "all": utils.all,
-    "delete": utils.delete,
-    "remove-phone": utils.remove_phone,
-    "add-birthday": utils.add_birthday,
-    "show-birthday": utils.show_birthday,
-    "birthdays": utils.show_upcoming_birthdays,
-    "search": utils.search,
+    bot_config.add.command: utils.add,
+    bot_config.change.command: utils.change,
+    bot_config.phone.command: utils.phone,
+    bot_config.all.command: utils.all,
+    bot_config.delete.command: utils.delete,
+    bot_config.remove_phone.command: utils.remove_phone,
+    bot_config.add_birthday.command: utils.add_birthday,
+    bot_config.show_birthday.command: utils.show_birthday,
+    bot_config.birthdays.command: utils.show_upcoming_birthdays,
+    bot_config.search.command: utils.search,
 }

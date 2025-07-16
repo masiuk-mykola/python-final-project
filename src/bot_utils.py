@@ -283,7 +283,6 @@ utils = Box(
         "search": search,
         "save_commands": save_commands,
         "load_commands": load_commands,
-        "extract_commands": extract_commands,
         "get_user_input": get_user_input,
     }
 )
