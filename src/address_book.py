@@ -21,10 +21,7 @@ class Name(Field):
 class Phone(Field):
 
     def __init__(self, value):
-        value_str = str(value)
-        if not value_str.isdigit() or len(value_str) != 10:
-            raise ValueError("Phone number must contain exactly 10 digits")
-        super().__init__(value_str)
+        super().__init__(str(value))
 
 
 class Birthday(Field):
@@ -51,6 +48,15 @@ class Record:
                 self.phones.remove(p)
                 return True
         return False
+
+    def edit_name(self, old_name, new_name, book):
+        if self.name.value == old_name:
+            book.data.pop(old_name)
+            self.name = Name(new_name)
+            book.data[new_name] = self
+            print(f"Name changed from {old_name} to {new_name}")
+        else:
+            print(f"Error: current name does not match {old_name}")
 
     def edit_phone(self, old_phone, new_phone):
         for i, p in enumerate(self.phones):
