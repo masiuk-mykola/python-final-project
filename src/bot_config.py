@@ -66,5 +66,31 @@ bot_config = Box(
         "search": {
             "command": "search",
         },
+            "add_note": {
+        "command": "add-note",
+        "answer": "Note added.",
+    },
+    "search_note": {
+        "command": "search-note",
+        "answer": "Search results:",
+    },
+    "edit_note": {
+        "command": "edit-note",
+        "answer": {
+            "success": "Note edited.",
+            "fail": "Note not found.",
+        },
+    },
+    "delete_note": {
+        "command": "delete-note",
+        "answer": {
+            "success": "Note deleted.",
+            "fail": "Note not found.",
+        },
+    },
+    "sort_notes_by_tag": {
+        "command": "sort-notes",
+        "answer": "Notes sorted by tag.",
+    },
     }
 )
