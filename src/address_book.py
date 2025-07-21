@@ -74,7 +74,7 @@ class Record:
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value if self.birthday else '-'}"
-   
+
     def add_email(self, email):
         self.email = email
 
@@ -104,43 +104,62 @@ class AddressBook(UserDict):
     def delete(self, name):
         return self.data.pop(name, None)
 
-    def get_upcoming_birthdays(self):
+    def get_upcoming_birthdays(self, days_ahead=7):
         today = datetime.today().date()
         upcoming_birthdays = []
 
         for contact in self.data.values():
+            if not contact.birthday:
+                continue
 
-            if not contact.name or not contact.birthday:
-                return print(
-                    "\033[31m‼️ Fields name and birthday are required for each contact.\033[0m"
-                )
-            else:
+            birthday = contact.birthday.value
+            birthday_this_year = birthday.replace(year=today.year)
 
-                birthday = contact.birthday.value
-                birthday_this_year = birthday.replace(year=today.year)
+            if birthday_this_year < today:
+                birthday_this_year = birthday_this_year.replace(year=today.year + 1)
 
-                if birthday_this_year < today:
-                    birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+            delta_days = (birthday_this_year - today).days
 
-                delta_days = (birthday_this_year - today).days
-
-                if 0 <= delta_days <= 7:
-                    if birthday_this_year.weekday() in (5, 6):
-                        days_to_monday = 7 - birthday_this_year.weekday()
-                        greeting_date = birthday_this_year + timedelta(
-                            days=days_to_monday
-                        )
-                    else:
-                        greeting_date = birthday_this_year
-
-                    upcoming_birthdays.append(
-                        {
-                            "name": contact.name.value,
-                            "congratulation_date": greeting_date.isoformat(),
-                        }
-                    )
+            if 0 <= delta_days <= days_ahead:
+                upcoming_birthdays.append(contact)
 
         return upcoming_birthdays
+        # today = datetime.today().date()
+        # upcoming_birthdays = []
+
+        # for contact in self.data.values():
+
+        #     if not contact.name or not contact.birthday:
+        #         return print(
+        #             "\033[31m‼️ Fields name and birthday are required for each contact.\033[0m"
+        #         )
+        #     else:
+
+        #         birthday = contact.birthday.value
+        #         birthday_this_year = birthday.replace(year=today.year)
+
+        #         if birthday_this_year < today:
+        #             birthday_this_year = birthday_this_year.replace(year=today.year + 1)
+
+        #         delta_days = (birthday_this_year - today).days
+
+        #         if 0 <= delta_days <= 7:
+        #             if birthday_this_year.weekday() in (5, 6):
+        #                 days_to_monday = 7 - birthday_this_year.weekday()
+        #                 greeting_date = birthday_this_year + timedelta(
+        #                     days=days_to_monday
+        #                 )
+        #             else:
+        #                 greeting_date = birthday_this_year
+
+        #             upcoming_birthdays.append(
+        #                 {
+        #                     "name": contact.name.value,
+        #                     "congratulation_date": greeting_date.isoformat(),
+        #                 }
+        #             )
+
+        # return upcoming_birthdays
 
     def __str__(self):
         if not self.data:
