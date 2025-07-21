@@ -1,4 +1,3 @@
-import threading
 from colorama import Fore, init
 from bot_config import bot_config
 from bot_utils import utils
@@ -13,7 +12,6 @@ def main():
     print(f"{Fore.GREEN} Bot is starting...")
     print(f"{Fore.BLUE} Welcome to the Bot Assistant!")
     book = utils.load_data()
-
 
     while True:
         command = utils.get_user_input("Enter a command (or 'exit' to quit): ")

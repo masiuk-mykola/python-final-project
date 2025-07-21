@@ -2,6 +2,7 @@ from box import Box
 import pickle
 from prompt_toolkit import prompt
 from colorama import Fore, init
+
 init(autoreset=True)
 
 from address_book import AddressBook, Record
@@ -175,6 +176,9 @@ def show_birthday(book):
 
 def show_upcoming_birthdays(book):
     upcoming_birthdays = book.get_upcoming_birthdays()
+    days_ahead = int(get_user_input("Enter days ahead: "))
+    upcoming_birthdays = book.get_upcoming_birthdays(days_ahead)
+
     if not upcoming_birthdays:
         logger.warn(f"No upcoming birthdays found.")
         return
@@ -182,7 +186,7 @@ def show_upcoming_birthdays(book):
     logger.success(f"Upcoming birthdays:")
     for contact in upcoming_birthdays:
         logger.log(contact)
-        logger.log(f"{contact['name']}: {contact['congratulation_date']}")
+        logger.log(f"{contact.name}: {contact.birthday}")
 
 
 def search(book):
@@ -248,7 +252,9 @@ def get_user_input(message):
     save_commands(cmd)
     return cmd
 
+
 import re
+
 
 @input_error
 def add_email(book):
