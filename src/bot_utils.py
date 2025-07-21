@@ -1,6 +1,8 @@
 from box import Box
 import pickle
 from prompt_toolkit import prompt
+from colorama import Fore, init
+init(autoreset=True)
 
 from address_book import AddressBook, Record
 from bot_autocomplete import DynamicCompleter
@@ -246,6 +248,57 @@ def get_user_input(message):
     save_commands(cmd)
     return cmd
 
+import re
+
+@input_error
+def add_email(book):
+    name = get_user_input("Enter contact name: ")
+    email = get_user_input("Enter email: ")
+
+    contact = book.find(name)
+
+    if not contact:
+        print(f"{Fore.RED} Contact {name} not found.")
+        return
+
+    if validator(patterns.email, email):
+        contact.add_email(email)
+        print(f"{Fore.GREEN} {bot_config.add_email.answer.success}")
+    else:
+        print(f"{Fore.RED} {bot_config.add_email.answer.fail}")
+
+
+@input_error
+def edit_email(book):
+    name = get_user_input("Enter contact name: ")
+    new_email = get_user_input("Enter new email: ")
+
+    contact = book.find(name)
+
+    if not contact:
+        print(f"{Fore.RED} Contact {name} not found.")
+        return
+
+    if validator(patterns.email, new_email):
+        contact.edit_email(new_email)
+        print(f"{Fore.GREEN} {bot_config.edit_email.answer.success}")
+    else:
+        print(f"{Fore.RED} {bot_config.edit_email.answer.fail}")
+
+
+@input_error
+def remove_email(book):
+    name = get_user_input("Enter contact name: ")
+
+    contact = book.find(name)
+
+    if not contact:
+        print(f"{Fore.RED} Contact {name} not found.")
+        return
+
+    contact.remove_email()
+    print(f"{Fore.GREEN} {bot_config.remove_email.answer}")
+
 
 utils = Box(
     {
@@ -264,5 +317,8 @@ utils = Box(
         "save_commands": save_commands,
         "load_commands": load_commands,
         "get_user_input": get_user_input,
+        "add_email": add_email,
+        "edit_email": edit_email,
+        "remove_email": remove_email,
     }
 )

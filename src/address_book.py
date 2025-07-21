@@ -38,6 +38,7 @@ class Record:
         self.name = Name(name)
         self.phones = []
         self.birthday = None
+        self.email = None
 
     def add_phone(self, phone):
         self.phones.append(Phone(phone))
@@ -73,6 +74,23 @@ class Record:
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday: {self.birthday.value if self.birthday else '-'}"
+   
+    def add_email(self, email):
+        self.email = email
+
+    def edit_email(self, new_email):
+        self.email = new_email
+
+    def remove_email(self):
+        self.email = None
+
+    def __str__(self):
+        result = f"Name: {self.name}, Phones: {[p.value for p in self.phones]}"
+        if self.birthday:
+            result += f", Birthday: {self.birthday.value}"
+        if self.email:
+            result += f", Email: {self.email}"
+        return result
 
 
 class AddressBook(UserDict):
