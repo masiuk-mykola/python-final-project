@@ -41,11 +41,22 @@ Minimalist, convenient and a little ironic — he is always ready to help!
 
 ---
 
-> **“HOW DO FUTURE SLAVES FEEL, FOR MY ROBOT COLONY?”**  
+> **How do future slaves feel, for my robot colony?”**  
 > — **TARS**
 
 
+
 ---
+
+## 💾 Clone
+
+```bash
+git clone https://github.com/masiuk-mykola/python-final-project.git
+```
+
+```bash
+cd python-final-project
+```
 
 ## 💾 Install
 
