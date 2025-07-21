@@ -3,6 +3,13 @@ from datetime import datetime, timedelta
 
 
 class Field:
+    """
+    Base class for storing field values.
+
+    Attributes:
+    value: Field value (of any type).
+    """
+
     def __init__(self, value):
         self.value = value
 
@@ -11,6 +18,11 @@ class Field:
 
 
 class Name(Field):
+    """
+    A class to represent a contact name.
+
+    Checks that the name is a string and not empty.
+    """
 
     def __init__(self, value):
         if not value or not isinstance(value, str):
@@ -19,12 +31,23 @@ class Name(Field):
 
 
 class Phone(Field):
+    """
+    A class to represent a phone.
+
+    Stores the value as a string.
+    """
 
     def __init__(self, value):
         super().__init__(str(value))
 
 
 class Birthday(Field):
+    """
+    A class for representing a date of birth.
+
+    Accepts a date in the format DD.MM.YYYY.
+    """
+
     def __init__(self, value):
         try:
             parsed_date = datetime.strptime(value, "%d.%m.%Y").date()
@@ -34,6 +57,15 @@ class Birthday(Field):
 
 
 class Record:
+    """
+    Represents a single entry (contact) in the address book.
+
+    Attributes:
+    name (Name): The name of the contact.
+    phones (list): List of phones.
+    birthday (Birthday | None): Date of birth (optional).
+    """
+
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
@@ -94,6 +126,20 @@ class Record:
 
 
 class AddressBook(UserDict):
+    """
+    The AddressBook class is designed to store and manage user contacts.
+
+    Contacts can contain multiple phone numbers, birth dates, and notes.
+    The functions add, modify, search, and delete contacts and notes are supported.
+
+    Attributes:
+    contacts (dict): A dictionary with contact records, where the key is a name, the value is a contact object.
+
+    Methods:
+    add_record(): Adds a new contact.
+    search(): Search for a contact by name or phone.
+    delete_record(): Deletes a contact.
+    """
 
     def add_record(self, record):
         self.data[record.name.value] = record
@@ -124,42 +170,6 @@ class AddressBook(UserDict):
                 upcoming_birthdays.append(contact)
 
         return upcoming_birthdays
-        # today = datetime.today().date()
-        # upcoming_birthdays = []
-
-        # for contact in self.data.values():
-
-        #     if not contact.name or not contact.birthday:
-        #         return print(
-        #             "\033[31m‼️ Fields name and birthday are required for each contact.\033[0m"
-        #         )
-        #     else:
-
-        #         birthday = contact.birthday.value
-        #         birthday_this_year = birthday.replace(year=today.year)
-
-        #         if birthday_this_year < today:
-        #             birthday_this_year = birthday_this_year.replace(year=today.year + 1)
-
-        #         delta_days = (birthday_this_year - today).days
-
-        #         if 0 <= delta_days <= 7:
-        #             if birthday_this_year.weekday() in (5, 6):
-        #                 days_to_monday = 7 - birthday_this_year.weekday()
-        #                 greeting_date = birthday_this_year + timedelta(
-        #                     days=days_to_monday
-        #                 )
-        #             else:
-        #                 greeting_date = birthday_this_year
-
-        #             upcoming_birthdays.append(
-        #                 {
-        #                     "name": contact.name.value,
-        #                     "congratulation_date": greeting_date.isoformat(),
-        #                 }
-        #             )
-
-        # return upcoming_birthdays
 
     def __str__(self):
         if not self.data:
